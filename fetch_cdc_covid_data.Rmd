@@ -1,0 +1,133 @@
+---
+title: Using the CDC COVID Socrata API in R
+author: Christian Testa
+date: "`r format(Sys.time(), '%b %m %Y')`"
+---
+
+The CDC Covid Socrata API is accessible here with some accompanying documentation.  
+<https://dev.socrata.com/foundry/data.cdc.gov/ks3g-spdg> 
+
+In order to use the Socrata API, one must provide their email, password, and app token for 
+their account set up at <https://data.cdc.gov/login>.
+
+To use the example R code below, specify your email, password, and app token in the 
+accompanying files `data_cdc_email.txt`, `data_cdc_password.txt`, and `app_token.txt` 
+on the first line of each file.
+
+```{r setup, echo=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  cache=TRUE
+)
+```
+
+
+```{r load socrata}
+# if RSocrata is not available, install it
+if (!require(RSocrata)) install.packages("RSocrata")
+
+# load socrata api interface
+library(RSocrata)
+```
+
+#### Read in Personal/Secret Data -- Email, Password, App Token
+
+```{r load personal/secret data}
+app_token <- readLines("app_token.txt")[[1]]
+data_cdc_password <- readLines("data_cdc_password.txt")[[1]]
+data_cdc_email <- readLines("data_cdc_email.txt")[[1]]
+```
+
+#### Make a request through RSocrata to data.cdc.gov
+
+```{r make request}
+df <- read.socrata(
+  "https://data.cdc.gov/resource/ks3g-spdg.json",
+  app_token = app_token,
+  email     = data_cdc_email,
+  password  = data_cdc_password
+)
+```
+
+#### Take a look at the data frame
+
+```{r example features}
+dim(df)
+colnames(df)
+unique(df$data_as_of)
+unique(df$start_week)
+unique(df$end_week)
+unique(df$age_group)
+unique(df$race_and_hispanic_origin)
+
+str(df)
+```
+
+#### Try a Historical Request
+
+Annoying news: If I try to make a request for the data as of a prior date, it appears that the 
+request returns an empty data frame.
+
+
+```{r make back-dated request}
+may_1_df <- read.socrata(
+  "https://data.cdc.gov/resource/ks3g-spdg.json?data_as_of=2020-05-01T00:00:00.000",
+  app_token = app_token,
+  email     = data_cdc_email,
+  password  = data_cdc_password,
+)
+
+may_1_df
+```
+
+### Plotting Total Deaths by Race and Hispanic Origin
+
+```{r, fig.height = 7, fig.width = 14}
+library(dplyr)
+library(ggplot2)
+
+all_ages_us_df <- df %>% 
+  filter(age_group == 'All Ages',
+         state == 'United States') %>% 
+  mutate(total_deaths = as.numeric(total_deaths)) 
+
+ggplot(all_ages_us_df, aes(x = race_and_hispanic_origin, y = total_deaths, fill = race_and_hispanic_origin)) + 
+  geom_bar(stat='identity') + 
+  expand_limits(y = 0) + 
+  coord_flip() + 
+  theme_minimal() + 
+  scale_y_continuous(name="Total Deaths", labels = scales::comma) + 
+  xlab("") + 
+  ggtitle("Deaths by Race/Ethnicity as of May 20th, 2020") + 
+  guides(fill=guide_legend(title = "Race and Hispanic Origin", nrow=4, byrow=TRUE)) + 
+  theme(
+    axis.text.x = element_text(angle = 45),
+    legend.position = 'bottom',
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) 
+```
+
+
+And on log-scale:
+
+```{r, fig.height = 7, fig.width = 14}
+df %>% 
+  filter(age_group == 'All Ages',
+         state == 'United States') %>% 
+  mutate(total_deaths = as.numeric(total_deaths)) %>% 
+ggplot(aes(x = race_and_hispanic_origin, y = total_deaths, fill = race_and_hispanic_origin)) + 
+  geom_bar(stat='identity') + 
+  expand_limits(y = 0) + 
+  coord_flip() + 
+  theme_minimal() + 
+  scale_y_log10(name="Total Deaths", labels = scales::comma) + 
+  xlab("") + 
+  ggtitle("Deaths by Race/Ethnicity as of May 20th, 2020 - Log Scale") + 
+  guides(fill=guide_legend(title = "Race and Hispanic Origin", nrow=4, byrow=TRUE)) + 
+  theme(
+    axis.text.x = element_text(angle = 45),
+    legend.position = 'bottom',
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  ) 
+```
