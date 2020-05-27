@@ -81,6 +81,9 @@ may_1_df
 
 ### Plotting Total Deaths by Race and Hispanic Origin
 
+I want to be extra clear here: depicted below are deaths from all causes of death, not exclusively 
+COVID-19 related. This is just for purposes of illustrating some of the information the data contains. 
+
 ```{r, fig.height = 7, fig.width = 14}
 library(dplyr)
 library(ggplot2)
@@ -97,7 +100,7 @@ ggplot(all_ages_us_df, aes(x = race_and_hispanic_origin, y = total_deaths, fill 
   theme_minimal() + 
   scale_y_continuous(name="Total Deaths", labels = scales::comma) + 
   xlab("") + 
-  ggtitle("Deaths by Race/Ethnicity as of May 20th, 2020") + 
+  ggtitle("Total Deaths by Race/Ethnicity as of May 20th, 2020") + 
   guides(fill=guide_legend(title = "Race and Hispanic Origin", nrow=4, byrow=TRUE)) + 
   theme(
     axis.text.x = element_text(angle = 45),
@@ -122,7 +125,7 @@ ggplot(aes(x = race_and_hispanic_origin, y = total_deaths, fill = race_and_hispa
   theme_minimal() + 
   scale_y_log10(name="Total Deaths", labels = scales::comma) + 
   xlab("") + 
-  ggtitle("Deaths by Race/Ethnicity as of May 20th, 2020 - Log Scale") + 
+  ggtitle("Total Deaths by Race/Ethnicity as of May 20th, 2020 - Log Scale") + 
   guides(fill=guide_legend(title = "Race and Hispanic Origin", nrow=4, byrow=TRUE)) + 
   theme(
     axis.text.x = element_text(angle = 45),
