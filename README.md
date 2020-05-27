@@ -7,9 +7,8 @@ and age groups.
 
 The data is retrieved using the documentation here: 
 
-  Deaths involving coronavirus disease 2019 (COVID-19) by race and Hispanic origin group and age, by state
-
-  https://dev.socrata.com/foundry/data.cdc.gov/ks3g-spdg
+    Deaths involving coronavirus disease 2019 (COVID-19) by race and Hispanic origin group and age, by state
+    https://dev.socrata.com/foundry/data.cdc.gov/ks3g-spdg
 
 View the rendered Rmarkdown document live through GitHub pages here: 
 
