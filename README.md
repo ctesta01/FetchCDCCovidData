@@ -11,5 +11,6 @@ The data is retrieved using the documentation here:
 > <https://dev.socrata.com/foundry/data.cdc.gov/ks3g-spdg>
 
 View the rendered Rmarkdown document here: 
+
 <https://ctesta01.github.io/FetchCDCCovidData/fetch_cdc_covid_data.html>
 
